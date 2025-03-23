@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
+import { toast } from 'react-toastify';
 
 const AdmissionForm = () => {
   const [formData, setFormData] = useState({
@@ -6,11 +8,12 @@ const AdmissionForm = () => {
     lastName: '',
     phoneNumber: '',
     email: '',
-    course: '',
-    studyCenter: '',
+    jobTitle: '',
+    jobRole: '',
+    address: '',
     gender: '',
-    sports: [],
-    photo: null,
+    skills: [],
+    resume: null,
     description: '',
     termsCondition: false,
   });
@@ -20,11 +23,12 @@ const AdmissionForm = () => {
     lastName: '',
     phoneNumber: '',
     email: '',
-    course: '',
-    studyCenter: '',
+    jobTitle: '',
+    jobRole: '',
+    address: '',
     gender: '',
-    sports: '',
-    photo: '',
+    skills: '',
+    resume: '',
     description: '',
     termsCondition: '',
   });
@@ -38,11 +42,12 @@ const AdmissionForm = () => {
       lastName: '',
       phoneNumber: '',
       email: '',
-      course: '',
-      studyCenter: '',
+      jobTitle: '',
+      jobRole: '',
+      address: '',
       gender: '',
-      sports: '',
-      photo: '',
+      skills: '',
+      resume: '',
       description: '',
       termsCondition: '',
     });
@@ -88,14 +93,14 @@ const AdmissionForm = () => {
     }
 
     // Validation for course
-    if (!formData.course.trim()) {
-      newValidationErrors.course = 'Course selection is required!';
+    if (!formData.jobRole.trim()) {
+      newValidationErrors.jobRole = 'Job Role selection is required!';
       hasError = true;
     }
 
     // Validation for studyCenter
-    if (!formData.studyCenter.trim()) {
-      newValidationErrors.studyCenter = 'Study center selection is required!';
+    if (!formData.jobTitle.trim()) {
+      newValidationErrors.jobTitle = 'Job Title selection is required!';
       hasError = true;
     }
 
@@ -105,9 +110,9 @@ const AdmissionForm = () => {
       hasError = true;
     }
 
-    // Validation for sports (if not selected any)
-    if (formData.sports.length === 0) {
-      newValidationErrors.sports = 'Please select at least one sport!';
+    // Validation for sports
+    if (formData.skills.length === 0) {
+      newValidationErrors.skills = 'Please select at least one skill!';
       hasError = true;
     }
 
@@ -117,9 +122,15 @@ const AdmissionForm = () => {
       hasError = true;
     }
 
+    // Validation for address
+    if (!formData.address) {
+      newValidationErrors.address = 'Please enter your address!';
+      hasError = true;
+    }
+
     // Validation for photo upload
-    if (!formData.photo) {
-      newValidationErrors.photo = 'Please upload a photo!';
+    if (!formData.resume) {
+      newValidationErrors.resume = 'Please upload your cv!';
       hasError = true;
     }
 
@@ -135,6 +146,10 @@ const AdmissionForm = () => {
     if (!hasError) {
       // Handle form submission (e.g., send data to the server)
       console.log('Form submitted:', formData);
+    }
+
+    if (hasError) {
+      toast.error('Please fill required details!');
     }
   };
 
@@ -167,22 +182,29 @@ const AdmissionForm = () => {
   const countLength = (e) => {
     const newText = e.target.value;
     setCharCount(newText.length);
+    if (newText.length > 300) {
+      toast.error("Your text exceed more than 300 charcter!");
+      e.target.value = newText.slice(0, 300);
+      setCharCount(300);
+    } else {
+      setCharCount(newText.length);
+    }
   };
 
   return (
     <>
       <div className="flex justify-center items-center" style={{ height: '100vh' }}>
-        <div className="relative flex flex-col my-6 shadow-xl bg-black border text-white rounded-xl" style={{ width: '90%' }}>
-          <div className="px-3 flex justify-between items-center border-b border-white py-3">
-            <div className="font-bold text-xl text-center uppercase">Fill Form for Admission in IGNOU</div>
+        <div className="relative flex flex-col my-6 shadow-xl bg-white border border-black text-black rounded-xl" style={{ width: '90%' }}>
+          <div className="px-3 flex justify-between items-center border-b border-black py-3">
+            <div className="font-bold text-xl text-center uppercase">Submit this form for get the job</div>
             <div>
               <button
-                type="button"
-                className="cursor-pointer group relative inline-flex py-1 items-center justify-center overflow-hidden rounded-0 bg-blue-600 px-2 py-1 md:px-4 font-medium text-neutral-200"
+                type="button" onClick={() => toast.info("This page is not available!")}
+                className="cursor-pointer group relative inline-flex py-1 items-center justify-center overflow-hidden rounded-md bg-black px-2 py-2 md:px-4 font-medium text-neutral-200"
               >
                 <span className="flex justify-center items-center">
                   <i className="fa-solid fa-list md:mr-3"></i>
-                  <span className="hidden md:flex" onClick={() => alert("Not Available!")}>All Records</span>
+                  <span className="hidden md:flex">All Records</span>
                 </span>
                 <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
                   <div className="relative h-full w-8 bg-white/20"></div>
@@ -195,7 +217,7 @@ const AdmissionForm = () => {
             <form id="admissionForm" method="POST" onSubmit={handleSubmit} encType="multipart/form-data" action="submit-form/">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="col-span-full sm:col-span-2">
-                  <label htmlFor="first-name" className="font-medium text-gray-600">
+                  <label htmlFor="first-name" className="font-medium text-md text-gray-600">
                     First name <span className="text-red-600">*</span>
                   </label>
                   <div className="mt-2">
@@ -206,10 +228,13 @@ const AdmissionForm = () => {
                       placeholder="Enter first name"
                       id="first-name"
                       onChange={handleChange}
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.termsCondition }
+                      )}
                     />
                     {validationErrors.firstName && (
-                      <p className="error text-red-600 mt-1"><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.firstName}</p>
+                      <p className="error text-red-600 mt-1"><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.firstName}</p>
                     )}
                   </div>
                 </div>
@@ -224,10 +249,13 @@ const AdmissionForm = () => {
                       placeholder="Enter last name"
                       name="lastName"
                       id="last-name"
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.lastName }
+                      )}
                     />
                     {validationErrors.lastName && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.lastName}</p>
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.lastName}</p>
                     )}
                   </div>
                 </div>
@@ -242,10 +270,13 @@ const AdmissionForm = () => {
                       placeholder="Enter Phone number"
                       name="phoneNumber"
                       id="phone-number"
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.phoneNumber }
+                      )}
                     />
                     {validationErrors.phoneNumber && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.phoneNumber}</p>
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.phoneNumber}</p>
                     )}
                   </div>
                 </div>
@@ -261,57 +292,91 @@ const AdmissionForm = () => {
                       placeholder="Enter email address"
                       type="email"
                       autoComplete="email"
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.email }
+                      )}
                     />
                     {validationErrors.email && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.email}</p>
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.email}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="col-span-full sm:col-span-2 relative">
-                  <label htmlFor="course" className="font-medium text-gray-600">
-                    Select course <span className="text-red-600">*</span>
+                <div className="col-span-full sm:col-span-2">
+                  <label htmlFor="jobTitle" className="font-medium text-gray-600">
+                    Select job title <span className="text-red-600">*</span>
                   </label>
                   <div className="mt-2">
                     <select
-                      id="course"
-                      name="course"
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md cursor-pointer text-black"
+                      id="jobTitle"
+                      name="jobTitle"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.jobTitle }
+                      )}
                     >
                       <option defaultValue>
-                        -- Select course --
+                        -- Select job title --
                       </option>
-                      <option value="BCA">BCA</option>
-                      <option value="MCA">MCA</option>
-                      <option value="BA">BA</option>
-                      <option value="MA">MA</option>
+                      <option value="Web developer">Web developer</option>
+                      <option value="Back-end developer">Back-end developer</option>
+                      <option value="Front-end developer">Front-end developer</option>
+                      <option value="Software developer">Software developer</option>
+                      <option value="Wordpress developer">Wordpress developer</option>
                     </select>
-                    {validationErrors.course && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.course}</p>
+                    {validationErrors.jobTitle && (
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.jobTitle}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="col-span-full sm:col-span-2 relative">
-                  <label htmlFor="study-center" className="font-medium text-gray-600">
-                    Select study center <span className="text-red-600">*</span>
+                <div className="col-span-full sm:col-span-2">
+                  <label htmlFor="jobRole" className="font-medium text-gray-600">
+                    Select job role <span className="text-red-600">*</span>
                   </label>
                   <div className="mt-2">
                     <select
-                      id="study-center"
-                      name="studyCenter"
-                      className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md cursor-pointer text-black"
+                      id="jobRole"
+                      name="jobRole"
+                      className={classNames(
+                        "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
+                        { "border-red-600 my-shadow": validationErrors.jobRole }
+                      )}
                     >
                       <option defaultValue>
-                        -- Select study center --
+                        -- Select job role --
                       </option>
-                      <option value="MERIT">MERIT</option>
-                      <option value="DU">DU</option>
-                      <option value="JNU">JNU</option>
+                      <option value="work from home">Work From Home</option>
+                      <option value="work from office">Work From Office</option>
+                      <option value="remote">Remote</option>
+                      <option value="field job">Field job</option>
                     </select>
-                    {validationErrors.studyCenter && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.studyCenter}</p>
+                    {validationErrors.jobRole && (
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.jobRole}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-span-full">
+                  <div className="flex justify-between">
+                    <label htmlFor="address" className="font-medium text-gray-600">
+                      Your Address <span className="text-red-600">*</span>
+                    </label>
+                  </div>
+                  <div className="mt-2">
+                    <textarea
+                      name="address"
+                      id="address"
+                      rows="3"
+                      placeholder="Enter your address"
+                      className={classNames(
+                        "w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md",
+                        { "border-red-600 my-shadow": validationErrors.address }
+                      )}
+                    ></textarea>
+                    {validationErrors.address && (
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.address}</p>
                     )}
                   </div>
                 </div>
@@ -325,9 +390,12 @@ const AdmissionForm = () => {
                       <input
                         type="radio"
                         name="gender"
-                        value="m"
+                        value="male"
                         id="male"
-                        className="h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all"
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all", 
+                          { "border-red-600 my-shadow": validationErrors.gender }
+                        )}
                       />
                       <label className="ml-2 text-sm text-slate-600" htmlFor="male">
                         Male
@@ -338,7 +406,7 @@ const AdmissionForm = () => {
                       <input
                         type="radio"
                         name="gender"
-                        value="f"
+                        value="female"
                         id="female"
                         className="h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all"
                       />
@@ -351,7 +419,7 @@ const AdmissionForm = () => {
                       <input
                         type="radio"
                         name="gender"
-                        value="o"
+                        value="other"
                         id="other"
                         className="h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all"
                       />
@@ -361,73 +429,133 @@ const AdmissionForm = () => {
                     </div>
                   </div>
                   {validationErrors.gender && (
-                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.gender}</p>
+                    <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.gender}</p>
                   )}
                 </div>
 
                 <div className="col-span-full sm:col-span-2 mt-4 md:mt-0">
                   <label className="font-medium text-gray-600">
-                    Checked Sports Activity <span className="text-red-600">*</span>
+                    Skills <span className="text-red-600">*</span>
                   </label>
-                  <div className="mt-3 flex gap-x-3 flex-wrap">
-                    <input type="hidden" name="sportsActivity" id="hidden" />
+                  <div className="mt-3 flex gap-3 flex-wrap">
+                    <input type="hidden" name="skills" id="hidden" />
                     <div className="inline-flex items-center relative">
                       <input
                         type="checkbox"
-                        name="sports"
-                        value="Cricket"
+                        name="skills"
+                        value="html"
                         className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
-                        id="cricket"
+                        id="html"
                       />
-                      <label className="cursor-pointer ml-2 text-sm" htmlFor="cricket">
-                        Cricket
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="html">
+                        HTML
                       </label>
                     </div>
                     <div className="inline-flex items-center">
                       <input
                         type="checkbox"
-                        name="sports"
-                        value="Basketball"
+                        name="skills"
+                        value="css"
                         className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
-                        id="basketball"
+                        id="css"
                       />
-                      <label className="cursor-pointer ml-2 text-sm" htmlFor="basketball">
-                        Basketball
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="css">
+                        CSS
                       </label>
                     </div>
                     <div className="inline-flex items-center">
                       <input
                         type="checkbox"
-                        name="sports"
-                        value="Football"
+                        name="skills"
+                        value="java-script"
                         className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
-                        id="football"
+                        id="java-script"
                       />
-                      <label className="cursor-pointer ml-2 text-sm" htmlFor="football">
-                        Football
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="java-script">
+                        JavaScript
                       </label>
                     </div>
                     <div className="inline-flex items-center">
                       <input
                         type="checkbox"
-                        name="sports"
-                        value="Hockey"
+                        name="skills"
+                        value="python"
                         className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
-                        id="hockey"
+                        id="python"
                       />
-                      <label className="cursor-pointer ml-2 text-sm" htmlFor="hockey">
-                        Hockey
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="python">
+                        Python
+                      </label>
+                    </div>
+                    <div className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="skills"
+                        value="php"
+                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        id="php"
+                      />
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="php">
+                        PHP
+                      </label>
+                    </div>
+                    <div className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="skills"
+                        value="c++"
+                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        id="c++"
+                      />
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="c++">
+                        C++
+                      </label>
+                    </div>
+                    <div className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="skills"
+                        value="java"
+                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        id="java"
+                      />
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="jav">
+                        Java
+                      </label>
+                    </div>
+                    <div className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="skills"
+                        value="react-js"
+                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        id="react-js"
+                      />
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="react-js">
+                        React Js
+                      </label>
+                    </div>
+                    <div className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="skills"
+                        value="node-js"
+                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        id="node-js"
+                      />
+                      <label className="cursor-pointer ml-2 text-sm" htmlFor="node-js">
+                        Node Js
                       </label>
                     </div>
                   </div>
-                  {validationErrors.sports && (
-                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.sports}</p>
+                  {validationErrors.skills && (
+                    <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.skills}</p>
                   )}
                 </div>
 
                 <div className="col-span-full mt-3">
-                  <label htmlFor="photo" className="font-medium text-gray-600">
-                    Upload Photo <span className="text-red-600">*</span>
+                  <label htmlFor="resume" className="font-medium text-gray-600">
+                    Upload CV <span className="text-red-600">*</span>
                   </label>
                   <div className="mt-2 flex items-center gap-x-3">
                     <svg className="text-gray-300" width="80px" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -438,9 +566,18 @@ const AdmissionForm = () => {
                       />
                     </svg>
                     <div className="text-gray-600 flex flex-col">
-                      <input id="file-upload" name="photo" type="file" className="" accept="image/png, image/jpeg, image/jpg" />
-                      {validationErrors.photo && (
-                        <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.photo}</p>
+                      <input
+                        id="resume"
+                        name="resume"
+                        type="file"
+                        className={classNames(
+                          "w-full bg-white px-4 pt-1 h-9 border border-gray-300 rounded-md text-black",
+                          { "border-red-600 my-shadow": validationErrors.resume }
+                        )}
+                        accept="application/pdf"
+                      />
+                      {validationErrors.resume && (
+                        <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.resume}</p>
                       )}
                     </div>
                   </div>
@@ -448,7 +585,7 @@ const AdmissionForm = () => {
 
                 <div className="col-span-full">
                   <div className="flex justify-between">
-                    <label htmlFor="about" className="font-medium text-gray-600">
+                    <label htmlFor="description" className="font-medium text-gray-600">
                       Description <span className="text-red-600">*</span>
                     </label>
                     <label className="text-xs align-bottom">
@@ -458,14 +595,17 @@ const AdmissionForm = () => {
                   <div className="mt-2">
                     <textarea
                       name="description"
-                      id="about"
+                      id="description"
                       rows="3"
                       onChange={countLength}
                       placeholder="Write a few sentences about yourself."
-                      className="w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md"
+                      className={classNames(
+                        "w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md",
+                        { "border-red-600 my-shadow": validationErrors.description }
+                      )}
                     ></textarea>
                     {validationErrors.description && (
-                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.description}</p>
+                      <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.description}</p>
                     )}
                   </div>
                 </div>
@@ -475,15 +615,17 @@ const AdmissionForm = () => {
                     <input
                       type="checkbox"
                       name="termsCondition"
-                      className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
-                      id="terms"
+                      className={classNames("h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                        { "border-red-600 my-shadow": validationErrors.termsCondition }
+                      )}
+                      id="termsCondition"
                     />
-                    <label className="cursor-pointer ml-2 text-sm font-medium text-gray-600" htmlFor="terms">
+                    <label className="cursor-pointer ml-2 text-sm font-medium text-gray-600" htmlFor="termsCondition">
                       Accept all terms and conditions
                     </label>
                   </div>
                   {validationErrors.termsCondition && (
-                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.termsCondition}</p>
+                    <p className='error text-red-600 mt-1'><i className="fa-solid fa-circle-info me-2"></i>{validationErrors.termsCondition}</p>
                   )}
                 </div>
 
@@ -491,9 +633,9 @@ const AdmissionForm = () => {
                   <button
                     type="submit"
                     name="submit"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
+                    className="inline-flex justify-center items-center rounded-md border cursor-pointer border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
                   >
-                    Submit
+                    <i className="fa-solid fa-arrow-up-right-from-square me-2"></i>Apply Now
                   </button>
                 </div>
               </div>
