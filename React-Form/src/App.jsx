@@ -144,7 +144,7 @@ const AdmissionForm = () => {
     setValidationErrors(newValidationErrors);
 
     if (!hasError) {
-      // Handle form submission (e.g., send data to the server)
+      toast.success('Form submit successfully!');
       console.log('Form submitted:', formData);
     }
 
@@ -155,27 +155,178 @@ const AdmissionForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Reset specific error if the value is corrected
+    let newValidationErrors = { ...validationErrors };
+
+    if (name === 'firstName') {
+      if (!value.trim()) {
+        newValidationErrors.firstName = 'First name is required!';
+      } else if (value.trim().length > 10) {
+        newValidationErrors.firstName = 'First name must have at most 10 characters!';
+      } else {
+        newValidationErrors.firstName = '';
+      }
+    }
+
+    if (name === 'lastName') {
+      if (value.trim().length > 10) {
+        newValidationErrors.lastName = 'Last name must have at most 10 characters!';
+      } else {
+        newValidationErrors.lastName = '';
+      }
+    }
+
+    if (name === 'gender') {
+      if (!value.trim()) {
+        newValidationErrors.gender = 'Please select your gender!';
+      } else {
+        newValidationErrors.gender = '';
+      }
+    }
+
+    if (name === 'phoneNumber') {
+      if (!value.trim()) {
+        newValidationErrors.phoneNumber = 'Phone number is required!';
+      } else if (!/^\d+$/.test(value)) {
+        newValidationErrors.phoneNumber = 'Phone number must be numeric!';
+      } else if (value.trim().length !== 10) {
+        newValidationErrors.phoneNumber = 'Please enter a valid number!';
+      } else {
+        newValidationErrors.phoneNumber = '';
+      }
+    }
+
+    if (name === 'email') {
+      if (!value.trim()) {
+        newValidationErrors.email = 'Email address is required!';
+      } else if (!/\S+@\S+\.\S+/.test(value)) {
+        newValidationErrors.email = 'Invalid email address!';
+      } else {
+        newValidationErrors.email = '';
+      }
+    }
+
+    if (name === 'address') {
+      if (!value.trim()) {
+        newValidationErrors.address = 'Please enter your address!';
+      } else {
+        newValidationErrors.address = '';
+      }
+    }
+
+    if (name === 'jobRole') {
+      if (!value.trim()) {
+        newValidationErrors.jobRole = 'Job role selection is required!';
+      } else {
+        newValidationErrors.jobRole = '';
+      }
+    }
+
+    if (name === 'jobTitle') {
+      if (!value.trim()) {
+        newValidationErrors.jobTitle = 'Job title selection is required!';
+      } else {
+        newValidationErrors.jobTitle = '';
+      }
+    }
+
+    if (name === 'description') {
+      if (!value.trim()) {
+        newValidationErrors.description = 'Description is required!';
+      } else {
+        newValidationErrors.description = '';
+      }
+    }
+
+    // Update formData and validationErrors
     setFormData({
-      ...formData, [name]: value
+      ...formData,
+      [name]: value,
     });
+
+    setValidationErrors(newValidationErrors);
   };
 
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
+
+    // Reset specific error if the value is corrected
+    let newValidationErrors = { ...validationErrors };
+
+    if (name === 'termsCondition') {
+      if (!checked) {
+        newValidationErrors.termsCondition = 'You must accept the terms and conditions!';
+      } else {
+        newValidationErrors.termsCondition = '';  // No error
+      }
+    }
+
     setFormData({
       ...formData,
-      [name]: checked
+      [name]: checked,
     });
+
+    setValidationErrors(newValidationErrors);
   };
 
-  const handleSportsChange = (e) => {
+  const handleSkillsChange = (e) => {
     const { value, checked } = e.target;
+    let newSkills = checked
+      ? [...formData.skills, value]
+      : formData.skills.filter((skill) => skill !== value);
+
+    let newValidationErrors = { ...validationErrors };
+
+    if (newSkills.length === 0) {
+      newValidationErrors.skills = 'Please select at least one skill!';
+    } else {
+      newValidationErrors.skills = '';
+    }
+
     setFormData({
       ...formData,
-      sports: checked
-        ? [...formData.sports, value]
-        : formData.sports.filter((sport) => sport !== value),
+      skills: newSkills,
     });
+
+    setValidationErrors(newValidationErrors);
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+  
+    // Perform file validation (e.g., file type and size)
+    if (file) {
+      const allowedTypes = ["application/pdf"];
+      const maxSize = 5 * 1024 * 1024; // 5 MB
+  
+      if (!allowedTypes.includes(file.type)) {
+        setValidationErrors({
+          ...validationErrors,
+          resume: "Only PDF files are allowed.",
+        });
+        return;
+      }
+  
+      if (file.size > maxSize) {
+        setValidationErrors({
+          ...validationErrors,
+          resume: "File size must be less than 5 MB.",
+        });
+        return;
+      }
+  
+      // If validation passes, update the form data
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: file,
+      }));
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        resume: "", // Clear any previous validation errors
+      }));
+    }
   };
 
   const [charCount, setCharCount] = useState(0);
@@ -214,7 +365,7 @@ const AdmissionForm = () => {
           </div>
 
           <div className="p-4 overflow-y-scroll pb-6" style={{ height: '70vh' }}>
-            <form id="admissionForm" method="POST" onSubmit={handleSubmit} encType="multipart/form-data" action="submit-form/">
+            <form id="admissionForm" method="POST" onSubmit={handleSubmit} encType="multipart/form-data" action="#">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="col-span-full sm:col-span-2">
                   <label htmlFor="first-name" className="font-medium text-md text-gray-600">
@@ -230,7 +381,7 @@ const AdmissionForm = () => {
                       onChange={handleChange}
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
-                        { "border-red-600 my-shadow": validationErrors.termsCondition }
+                        { "border-red-600 my-shadow": validationErrors.firstName }
                       )}
                     />
                     {validationErrors.firstName && (
@@ -249,6 +400,7 @@ const AdmissionForm = () => {
                       placeholder="Enter last name"
                       name="lastName"
                       id="last-name"
+                      onChange={handleChange}
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
                         { "border-red-600 my-shadow": validationErrors.lastName }
@@ -270,6 +422,7 @@ const AdmissionForm = () => {
                       placeholder="Enter Phone number"
                       name="phoneNumber"
                       id="phone-number"
+                      onChange={handleChange}
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
                         { "border-red-600 my-shadow": validationErrors.phoneNumber }
@@ -291,6 +444,7 @@ const AdmissionForm = () => {
                       name="email"
                       placeholder="Enter email address"
                       type="email"
+                      onChange={handleChange}
                       autoComplete="email"
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
@@ -311,12 +465,13 @@ const AdmissionForm = () => {
                     <select
                       id="jobTitle"
                       name="jobTitle"
+                      onChange={handleChange}
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
                         { "border-red-600 my-shadow": validationErrors.jobTitle }
                       )}
                     >
-                      <option defaultValue>
+                      <option defaultValue value="">
                         -- Select job title --
                       </option>
                       <option value="Web developer">Web developer</option>
@@ -339,12 +494,13 @@ const AdmissionForm = () => {
                     <select
                       id="jobRole"
                       name="jobRole"
+                      onChange={handleChange}
                       className={classNames(
                         "w-full bg-white px-4 h-10 border border-gray-300 rounded-md text-black",
                         { "border-red-600 my-shadow": validationErrors.jobRole }
                       )}
                     >
-                      <option defaultValue>
+                      <option defaultValue value="">
                         -- Select job role --
                       </option>
                       <option value="work from home">Work From Home</option>
@@ -369,6 +525,7 @@ const AdmissionForm = () => {
                       name="address"
                       id="address"
                       rows="3"
+                      onChange={handleChange}
                       placeholder="Enter your address"
                       className={classNames(
                         "w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md",
@@ -392,8 +549,9 @@ const AdmissionForm = () => {
                         name="gender"
                         value="male"
                         id="male"
+                        onChange={handleChange}
                         className={classNames(
-                          "h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all", 
+                          "h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all",
                           { "border-red-600 my-shadow": validationErrors.gender }
                         )}
                       />
@@ -408,7 +566,11 @@ const AdmissionForm = () => {
                         name="gender"
                         value="female"
                         id="female"
-                        className="h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all"
+                        onChange={handleChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all",
+                          { "border-red-600 my-shadow": validationErrors.gender }
+                        )}
                       />
                       <label className="ml-2 text-sm text-slate-600" htmlFor="female">
                         Female
@@ -421,7 +583,11 @@ const AdmissionForm = () => {
                         name="gender"
                         value="other"
                         id="other"
-                        className="h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all"
+                        onChange={handleChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer rounded-full border border-slate-300 checked:border-slate-400 transition-all",
+                          { "border-red-600 my-shadow": validationErrors.gender }
+                        )}
                       />
                       <label className="ml-2 text-sm text-slate-600" htmlFor="other">
                         Other
@@ -444,7 +610,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="html"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="html"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="html">
@@ -456,7 +626,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="css"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="css"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="css">
@@ -468,7 +642,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="java-script"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="java-script"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="java-script">
@@ -480,7 +658,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="python"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="python"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="python">
@@ -492,7 +674,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="php"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="php"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="php">
@@ -504,7 +690,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="c++"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="c++"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="c++">
@@ -516,7 +706,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="java"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="java"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="jav">
@@ -528,7 +722,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="react-js"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="react-js"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="react-js">
@@ -540,7 +738,11 @@ const AdmissionForm = () => {
                         type="checkbox"
                         name="skills"
                         value="node-js"
-                        className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
+                        onChange={handleSkillsChange}
+                        className={classNames(
+                          "h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
+                          { "border-red-600 my-shadow": validationErrors.skills }
+                        )}
                         id="node-js"
                       />
                       <label className="cursor-pointer ml-2 text-sm" htmlFor="node-js">
@@ -570,6 +772,7 @@ const AdmissionForm = () => {
                         id="resume"
                         name="resume"
                         type="file"
+                        onChange={handleFileChange}
                         className={classNames(
                           "w-full bg-white px-4 pt-1 h-9 border border-gray-300 rounded-md text-black",
                           { "border-red-600 my-shadow": validationErrors.resume }
@@ -597,7 +800,10 @@ const AdmissionForm = () => {
                       name="description"
                       id="description"
                       rows="3"
-                      onChange={countLength}
+                      onChange={(e) => {
+                        handleChange(e); 
+                        countLength(e); 
+                      }}
                       placeholder="Write a few sentences about yourself."
                       className={classNames(
                         "w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md",
@@ -615,13 +821,14 @@ const AdmissionForm = () => {
                     <input
                       type="checkbox"
                       name="termsCondition"
+                      onChange={handleCheckboxChange}
                       className={classNames("h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800",
                         { "border-red-600 my-shadow": validationErrors.termsCondition }
                       )}
                       id="termsCondition"
                     />
-                    <label className="cursor-pointer ml-2 text-sm font-medium text-gray-600" htmlFor="termsCondition">
-                      Accept all terms and conditions
+                    <label className="cursor-pointer ml-2 text-md font-medium text-gray-600" htmlFor="termsCondition">
+                      Accept all terms & conditions
                     </label>
                   </div>
                   {validationErrors.termsCondition && (
