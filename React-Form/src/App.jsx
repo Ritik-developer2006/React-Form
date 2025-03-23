@@ -1,6 +1,174 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const AdmissionForm = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    course: '',
+    studyCenter: '',
+    gender: '',
+    sports: [],
+    photo: null,
+    description: '',
+    termsCondition: false,
+  });
+
+  const [validationErrors, setValidationErrors] = useState({
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    course: '',
+    studyCenter: '',
+    gender: '',
+    sports: '',
+    photo: '',
+    description: '',
+    termsCondition: '',
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Reset errors
+    setValidationErrors({
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      email: '',
+      course: '',
+      studyCenter: '',
+      gender: '',
+      sports: '',
+      photo: '',
+      description: '',
+      termsCondition: '',
+    });
+
+    // Validation flag
+    let hasError = false;
+    const newValidationErrors = { ...validationErrors };
+
+    // Validation for firstName
+    if (!formData.firstName.trim()) {
+      newValidationErrors.firstName = 'First name is required!';
+      hasError = true;
+    } else if (formData.firstName.trim().length > 10) {
+      newValidationErrors.firstName = 'First name must have at most 10 characters!';
+      hasError = true;
+    }
+
+    // Validation for lastName
+    if (formData.lastName.trim().length > 10) {
+      newValidationErrors.lastName = 'Last name must have at most 10 characters!';
+      hasError = true;
+    }
+
+    // Validation for phoneNumber
+    if (!formData.phoneNumber.trim()) {
+      newValidationErrors.phoneNumber = 'Phone number is required!';
+      hasError = true;
+    } else if (!/^\d+$/.test(formData.phoneNumber)) {
+      newValidationErrors.phoneNumber = 'Phone number must be numeric!';
+      hasError = true;
+    } else if (formData.phoneNumber.trim().length != 10) {
+      newValidationErrors.phoneNumber = 'Please enter a valid number!';
+      hasError = true;
+    }
+
+    // Validation for email
+    if (!formData.email.trim()) {
+      newValidationErrors.email = 'Email address is required!';
+      hasError = true;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newValidationErrors.email = 'Invalid email address!';
+      hasError = true;
+    }
+
+    // Validation for course
+    if (!formData.course.trim()) {
+      newValidationErrors.course = 'Course selection is required!';
+      hasError = true;
+    }
+
+    // Validation for studyCenter
+    if (!formData.studyCenter.trim()) {
+      newValidationErrors.studyCenter = 'Study center selection is required!';
+      hasError = true;
+    }
+
+    // Validation for gender
+    if (!formData.gender) {
+      newValidationErrors.gender = 'Please select your gender!';
+      hasError = true;
+    }
+
+    // Validation for sports (if not selected any)
+    if (formData.sports.length === 0) {
+      newValidationErrors.sports = 'Please select at least one sport!';
+      hasError = true;
+    }
+
+    // Validation for termsCondition
+    if (!formData.termsCondition) {
+      newValidationErrors.termsCondition = 'You must accept the terms and conditions!';
+      hasError = true;
+    }
+
+    // Validation for photo upload
+    if (!formData.photo) {
+      newValidationErrors.photo = 'Please upload a photo!';
+      hasError = true;
+    }
+
+    // Validation for description
+    if (!formData.description.trim()) {
+      newValidationErrors.description = 'Description is required!';
+      hasError = true;
+    }
+
+    // Update validation errors state
+    setValidationErrors(newValidationErrors);
+
+    if (!hasError) {
+      // Handle form submission (e.g., send data to the server)
+      console.log('Form submitted:', formData);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData, [name]: value
+    });
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: checked
+    });
+  };
+
+  const handleSportsChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData({
+      ...formData,
+      sports: checked
+        ? [...formData.sports, value]
+        : formData.sports.filter((sport) => sport !== value),
+    });
+  };
+
+  const [charCount, setCharCount] = useState(0);
+  const countLength = (e) => {
+    const newText = e.target.value;
+    setCharCount(newText.length);
+  };
+
   return (
     <>
       <div className="flex justify-center items-center" style={{ height: '100vh' }}>
@@ -8,25 +176,23 @@ const AdmissionForm = () => {
           <div className="px-3 flex justify-between items-center border-b border-white py-3">
             <div className="font-bold text-xl text-center uppercase">Fill Form for Admission in IGNOU</div>
             <div>
-              <a href="records/">
-                <button
-                  type="button"
-                  className="group relative inline-flex py-1 items-center justify-center overflow-hidden rounded-0 bg-blue-600 px-2 py-1 md:px-4 font-medium text-neutral-200"
-                >
-                  <span className="flex justify-center items-center">
-                    <i className="fa-solid fa-list md:mr-3"></i>
-                    <span className="hidden md:flex">All Students</span>
-                  </span>
-                  <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
-                    <div className="relative h-full w-8 bg-white/20"></div>
-                  </div>
-                </button>
-              </a>
+              <button
+                type="button"
+                className="cursor-pointer group relative inline-flex py-1 items-center justify-center overflow-hidden rounded-0 bg-blue-600 px-2 py-1 md:px-4 font-medium text-neutral-200"
+              >
+                <span className="flex justify-center items-center">
+                  <i className="fa-solid fa-list md:mr-3"></i>
+                  <span className="hidden md:flex" onClick={() => alert("Not Available!")}>All Records</span>
+                </span>
+                <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
+                  <div className="relative h-full w-8 bg-white/20"></div>
+                </div>
+              </button>
             </div>
           </div>
 
           <div className="p-4 overflow-y-scroll pb-6" style={{ height: '70vh' }}>
-            <form id="admissionForm" method="POST" encType="multipart/form-data" action="submit-form/">
+            <form id="admissionForm" method="POST" onSubmit={handleSubmit} encType="multipart/form-data" action="submit-form/">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="col-span-full sm:col-span-2">
                   <label htmlFor="first-name" className="font-medium text-gray-600">
@@ -39,9 +205,12 @@ const AdmissionForm = () => {
                       name="firstName"
                       placeholder="Enter first name"
                       id="first-name"
+                      onChange={handleChange}
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
-                      required
                     />
+                    {validationErrors.firstName && (
+                      <p className="error text-red-600 mt-1"><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.firstName}</p>
+                    )}
                   </div>
                 </div>
 
@@ -57,6 +226,9 @@ const AdmissionForm = () => {
                       id="last-name"
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
                     />
+                    {validationErrors.lastName && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.lastName}</p>
+                    )}
                   </div>
                 </div>
 
@@ -68,11 +240,13 @@ const AdmissionForm = () => {
                     <input
                       type="text"
                       placeholder="Enter Phone number"
-                      name="number"
+                      name="phoneNumber"
                       id="phone-number"
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
-                      required
                     />
+                    {validationErrors.phoneNumber && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.phoneNumber}</p>
+                    )}
                   </div>
                 </div>
 
@@ -88,8 +262,10 @@ const AdmissionForm = () => {
                       type="email"
                       autoComplete="email"
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md text-black"
-                      required
                     />
+                    {validationErrors.email && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -102,9 +278,8 @@ const AdmissionForm = () => {
                       id="course"
                       name="course"
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md cursor-pointer text-black"
-                      required
                     >
-                      <option value="" selected>
+                      <option defaultValue>
                         -- Select course --
                       </option>
                       <option value="BCA">BCA</option>
@@ -112,6 +287,9 @@ const AdmissionForm = () => {
                       <option value="BA">BA</option>
                       <option value="MA">MA</option>
                     </select>
+                    {validationErrors.course && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.course}</p>
+                    )}
                   </div>
                 </div>
 
@@ -124,15 +302,17 @@ const AdmissionForm = () => {
                       id="study-center"
                       name="studyCenter"
                       className="w-full bg-white px-4 h-8 border border-gray-300 rounded-md cursor-pointer text-black"
-                      required
                     >
-                      <option value="" selected>
+                      <option defaultValue>
                         -- Select study center --
                       </option>
                       <option value="MERIT">MERIT</option>
                       <option value="DU">DU</option>
                       <option value="JNU">JNU</option>
                     </select>
+                    {validationErrors.studyCenter && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.studyCenter}</p>
+                    )}
                   </div>
                 </div>
 
@@ -180,6 +360,9 @@ const AdmissionForm = () => {
                       </label>
                     </div>
                   </div>
+                  {validationErrors.gender && (
+                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.gender}</p>
+                  )}
                 </div>
 
                 <div className="col-span-full sm:col-span-2 mt-4 md:mt-0">
@@ -237,6 +420,9 @@ const AdmissionForm = () => {
                       </label>
                     </div>
                   </div>
+                  {validationErrors.sports && (
+                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.sports}</p>
+                  )}
                 </div>
 
                 <div className="col-span-full mt-3">
@@ -252,7 +438,10 @@ const AdmissionForm = () => {
                       />
                     </svg>
                     <div className="text-gray-600 flex flex-col">
-                      <input id="file-upload" name="photo" type="file" className="" accept="image/png, image/jpeg, image/jpg" required />
+                      <input id="file-upload" name="photo" type="file" className="" accept="image/png, image/jpeg, image/jpg" />
+                      {validationErrors.photo && (
+                        <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.photo}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -263,7 +452,7 @@ const AdmissionForm = () => {
                       Description <span className="text-red-600">*</span>
                     </label>
                     <label className="text-xs align-bottom">
-                      <span className="text-length">0</span> / 300
+                      <span className="textLength">{charCount}</span> / 300
                     </label>
                   </div>
                   <div className="mt-2">
@@ -271,10 +460,13 @@ const AdmissionForm = () => {
                       name="description"
                       id="about"
                       rows="3"
+                      onChange={countLength}
                       placeholder="Write a few sentences about yourself."
                       className="w-full bg-white px-4 py-2 text-black border border-gray-300 rounded-md"
-                      required
                     ></textarea>
+                    {validationErrors.description && (
+                      <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.description}</p>
+                    )}
                   </div>
                 </div>
 
@@ -285,19 +477,21 @@ const AdmissionForm = () => {
                       name="termsCondition"
                       className="h-5 w-5 cursor-pointer border border-slate-300 checked:bg-slate-800 checked:border-slate-800"
                       id="terms"
-                      required
                     />
                     <label className="cursor-pointer ml-2 text-sm font-medium text-gray-600" htmlFor="terms">
                       Accept all terms and conditions
                     </label>
                   </div>
+                  {validationErrors.termsCondition && (
+                    <p className='error text-red-600 mt-1'><i class="fa-solid fa-circle-info me-2"></i>{validationErrors.termsCondition}</p>
+                  )}
                 </div>
 
                 <div className="col-span-full mt-4 flex justify-between">
                   <button
                     type="submit"
                     name="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
                   >
                     Submit
                   </button>
