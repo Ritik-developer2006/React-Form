@@ -848,7 +848,7 @@ const AdmissionForm = () => {
                     type="submit"
                     name="submit"
                     className={classNames(
-                      "w-full flex justify-center items-center submitsbtn rounded-md border cursor-pointer border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400",
+                      "w-full flex justify-center items-center submitsbtn rounded-md border cursor-pointer border-transparent bg-black py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:bg-gray-400",
                       { "hidden": isButtonHidden }
                     )}
                   >
@@ -856,7 +856,7 @@ const AdmissionForm = () => {
                   </button>
                   <button
                     className={classNames(
-                      "w-full group flex loaderBtn py-2 rounded-md items-center justify-center bg-indigo-400 font-bold px-4",
+                      "w-full group flex loaderBtn py-2 rounded-md items-center justify-center bg-black font-bold px-4",
                       { "hidden": isButtonLoader }
                     )}
                     disabled
