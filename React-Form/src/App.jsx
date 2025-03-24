@@ -354,7 +354,7 @@ const AdmissionForm = () => {
       <div className="flex justify-center items-center" style={{ height: '100vh' }}>
         <div className="relative flex flex-col my-6 shadow-xl bg-white border border-black text-black rounded-xl" style={{ width: '90%' }}>
           <div className="px-3 flex justify-between items-center border-b border-black py-3">
-            <div className="font-bold text-xl text-center uppercase">Submit this form for get the job</div>
+            <div className="font-bold text-sm md:text-xl text-start uppercase">Submit this form for get the job</div>
             <div>
               <button
                 type="button" onClick={() => toast.info("This page is not available!")}
